@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta  charset="utf-8" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta charset="UTF-8">
+    <title>匿名者-聊天室</title>
+</head>
+
+<style>
+    html, body {
+        margin: 1px;
+        width: 100%;
+        background: #0f0f0f;
+        color: white;
+
+    }
+
+    .message{
+        height: 700px;
+        width: 100%;
+        overflow: auto;
+
+    }
+    .title{
+        text-shadow: 1px 1px #000000;
+        color: red;
+        font-weight: bold;
+        text-align: center;
+    }
+    .msg{
+        margin-bottom: 12px;
+        border-bottom:1px solid #cccccc;
+
+    }
+    .footer{
+        margin-top: 6px;
+    }
+    .send_msg{
+        float: left;
+        width: 80%;
+        height: 50px;
+
+    }
+    .send_btn{
+        float: right;
+        width: 17%;
+        height: 56px;
+    }
+    .foot{
+        width: 100%;
+        box-sizing: border-box;
+        height: 60px;
+        position: absolute;
+        bottom: 10px;
+        padding: 0 7px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background:#f7f7f7;
+    }
+    .foot input{
+        width: 99%;
+        height: 50px;
+        border: none;
+        tab-index: 10px;
+        outline: medium;
+        border-radius: 3px;
+    }
+    .foot span{
+        margin-left: 2px;
+        width: 100px;
+        height: 48px;
+        text-align: center;
+
+    }
+    .voice {
+        background-size: 100%;
+        background-color: #2b542c;
+    }
+    .send {
+
+        background-color: black;
+        border-radius: 8px;
+        color: white;
+        line-height: 50px;
+    }
+
+</style>
+<body>
+    <div class="header" id="header"></div>
+    <div class="message" id="message"></div>
+    <div class="foot">
+            <input type="text" type="text" id="txt"  placeholder="在这里输入文字吧" />
+            <span class="send" onclick="sendMessage();">发送</span>
+    </div>
+
+</body>
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+    function resizeRem() {
+        if (window.innerWidth < window.innerHeight)
+        {
+            var html = document.querySelector('html');
+            var rem = html.offsetHeight / 10.80;
+            html.style.fontSize = rem + "px";
+        }
+        else {
+            var html = document.querySelector('html');
+            var rem = html.offsetWidth / 19.20;
+            html.style.fontSize = rem + "px";
+        }
+    }
+    socket = new WebSocket('ws://' + window.location.host +'/room/{{ num }}/');
+    socket.onmessage = function (event) {
+        let tag = document.createElement("li");
+        tag.setAttribute('class', 'msg');
+        tag.innerText= event.data
+        document.getElementById("message").appendChild(tag);
+        let h4 = $("#message").prop("scrollHeight");
+        $("#message").scrollTop(h4);
+    }
+    socket.onopen = function (event) {
+        let tag = document.createElement("div");
+        tag.innerText="🇨🇳 Welcome Anonymous "
+        tag.setAttribute('class', 'title');
+        document.getElementById("header").appendChild(tag);
+    }
+    function sendMessage(){
+        let tag = document.getElementById("txt");
+        socket.send(tag.value);
+        $('#txt').val('');
+    }
+    function closeConn() {
+        socket.close();
+    }
+    socket.onclose = function (event) {
+        let tag = document.createElement("div");
+        tag.innerText="失去连接,重新打开"
+        tag.setAttribute('class', 'title');
+        document.getElementById("header").appendChild(tag);
+    }
+    $(".msg").on("click", function() {
+        setTimeout(function(){
+            document.body.scrollTop = document.body.scrollHeight;
+        },300);
+    })
+</script>
+</html>
